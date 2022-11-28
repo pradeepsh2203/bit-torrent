@@ -4,5 +4,5 @@ I would be trying to built a bit-torrent client from scratch without any tutoria
 
 ## To-Do
 
--   [] Simple Landing Webpage to upload the torrent file.
--   [] Bencoder Parser.
+&#9744; Simple Landing Webpage to upload the torrent file.  
+&#9744; Bencoder Parser.
