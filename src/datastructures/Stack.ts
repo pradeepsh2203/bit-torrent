@@ -13,7 +13,7 @@ class Stack {
 
 	pop: () => void = () => {
 		if (this.size === 0) return undefined;
-		this.size--;
+		else this.size--;
 	};
 
 	getSize: () => number = () => {
@@ -25,8 +25,8 @@ class Stack {
 		return this.items[this.size - 1];
 	};
 
-	update(val: string) {
-		this.items[this.size - 1] = val;
+	update(val: any) {
+		if (this.size !== 0) this.items[this.size - 1] = val;
 	}
 }
 

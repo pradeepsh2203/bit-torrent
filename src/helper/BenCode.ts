@@ -1,70 +1,78 @@
-import { objReplace, objTypes, eReplace } from "../data/BenCodeStructure.js";
+import { objTypes } from "../data/BenCodeStructure";
 import Stack from "../datastructures/Stack";
 
-type KEYWORD = keyof typeof objTypes;
-
-const getString = (content: string, ind: number, length: number) => {
-	let str = "";
-	let quotes;
-	if (content[ind + 1] === '"') quotes = "";
-	else quotes = '"';
-	while (length != 0) {
-		ind++;
-		str += content[ind];
-		length--;
-	}
-	return quotes + str + quotes;
+const bufferToString = (ele: number) => {
+	let decoder = new TextDecoder("utf-8");
+	return decoder.decode(new Uint8Array([ele]), { stream: false });
 };
 
-const decrypt = (content: string) => {
-	let data = "";
-	const objectStack = new Stack(); // Stores what block we are working with.
-	let byteScore = 0;
+const decryptBuffer = (content: Buffer) => {
+	let objectStack = new Stack(); // Stores what block we are working with.
+	let DataStack = new Stack();
 	let keyValStack = new Stack();
+	objectStack.push("FINAL");
+	let byteScore = 0;
+	let key: any;
 
-	for (let i = 0; i < content.length; i++) {
-		const char = content[i];
-		if (char in objTypes) {
-			// Store what type of block we are working with and find a correct replace value for it
-			if (keyValStack.getSize() !== 0) {
-				const currFlag = keyValStack.peek();
-				if (keyValStack.peek() != 0) {
-					if (objectStack.peek() === "DICT")
-						data += currFlag & 1 ? ":" : ","; // For Dict add : and ,
-					if (objectStack.peek() === "LIST") data += ","; // For List you need to add only ,
-				}
-				keyValStack.update(currFlag + 1);
+	content.forEach((ele, i) => {
+		let char = bufferToString(ele);
+		if (byteScore !== 0 && objectStack.peek() === "STRING") {
+			DataStack.update(DataStack.peek() + char);
+			byteScore--;
+			if (byteScore === 0) {
+				char = "e";
 			}
-
-			objectStack.push(objTypes[char as KEYWORD]);
-			data += objReplace[char as KEYWORD];
-			const currBlock = objectStack.peek();
-			if (currBlock === "DICT" || currBlock === "LIST") {
-				// Added a flag to check for key values...
+		} else if (char in objTypes) {
+			if (char === "d") {
 				keyValStack.push(0);
-			}
-
-			if (objectStack.peek() === "STRING") {
-				data += getString(content, i, byteScore);
-				i += byteScore;
-				byteScore = 0;
-				objectStack.pop();
+				DataStack.push({});
+				objectStack.push("DICT");
+			} else if (char === "i") {
+				DataStack.push(0);
+				objectStack.push("NUMBER");
+			} else if (char === "l") {
+				DataStack.push([]);
+				objectStack.push("LIST");
+			} else {
+				DataStack.push("");
+				objectStack.push("STRING");
 			}
 		} else if (!isNaN(char as any)) {
-			// If the current byte is a number store it in the buffer or add it to the result.
-			if (objectStack.peek() === "NUMBER") data += parseInt(char);
+			if (objectStack.peek() === "NUMBER")
+				DataStack.update(
+					(DataStack.peek() * 10 + parseInt(char)) as any
+				);
 			else byteScore = byteScore * 10 + parseInt(char);
-		} else if (char == "e") {
-			data += eReplace[objectStack.peek() as keyof typeof eReplace];
-			if (
-				objectStack.peek() === "DICT" ||
-				objectStack.peek() === "LIST"
-			) {
-				keyValStack.pop();
-			}
-			objectStack.pop();
+		} else {
 		}
-	}
 
-	return data;
+		if (char === "e") {
+			let val = DataStack.peek();
+			if (objectStack.peek() === "DICT") keyValStack.pop();
+			objectStack.pop();
+			DataStack.pop();
+
+			if (objectStack.peek() === "FINAL") return val;
+			else if (objectStack.peek() === "DICT") {
+				if (keyValStack.peek() % 2 === 1) {
+					// Means its a value
+					let data = DataStack.peek();
+					data[key] = val;
+					DataStack.update(data);
+				} else {
+					// Meaning it's a key
+					key = val;
+				}
+				keyValStack.update(keyValStack.peek() + 1);
+			} else if (objectStack.peek() === "LIST") {
+				let list: Array<any> = DataStack.peek();
+				list.push(val);
+				DataStack.update(list);
+			}
+		}
+	});
+
+	return undefined;
 };
+
+module.exports = { decryptBuffer };
