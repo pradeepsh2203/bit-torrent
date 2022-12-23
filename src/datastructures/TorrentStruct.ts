@@ -23,6 +23,7 @@ interface torrentFile {
 class TorrentStruct {
 	public Announce: string;
 	public AnnounceUDP: Array<string>;
+	public AnnounceHTTP: Array<string>;
 	public InfoHash: Buffer;
 	public PieceHashes: Array<Array<any>>;
 	public PieceLength: number;
@@ -32,10 +33,13 @@ class TorrentStruct {
 	constructor(val: torrentFile) {
 		this.Announce = val.announce;
 		this.AnnounceUDP = [];
+		this.AnnounceHTTP = [];
 		if (val["announce-list"] !== undefined) {
 			val["announce-list"].forEach((ele) => {
-				const arr = ele.filter((url) => url.search("udp*") !== -1);
-				if (arr.length != 0) this.AnnounceUDP.push(...arr);
+				const arr1 = ele.filter((url) => url.search("udp*") !== -1);
+				const arr2 = ele.filter((url) => url.search("http*") !== -1);
+				this.AnnounceUDP.push(...arr1);
+				this.AnnounceHTTP.push(...arr2);
 			});
 		}
 		const hash = crypto.createHash("sha1");

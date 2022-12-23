@@ -22,12 +22,7 @@ router.post("/", parseMP, (req, res) => {
 	);
 	// console.log(Bencode.decode(torrentFile[0].data));
 	const torrent = new TorrentStruct(Bencode.decode(torrentFile[0].data));
-	const myPeerId = generatePeerId();
-	const portNo =
-		process.env.UDP_PORT === undefined
-			? 6881
-			: parseInt(process.env.UDP_PORT);
-	const peers = getPeerList(torrent, myPeerId, portNo);
+	const peers = getPeerList(torrent);
 	res.send("");
 });
 
