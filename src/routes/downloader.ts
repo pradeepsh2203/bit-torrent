@@ -5,6 +5,8 @@ import { generatePeerId, getPeerList } from "../helper/Peers";
 const router = express.Router();
 const parseMP = require("express-parse-multipart");
 require("dotenv").config();
+import fs from "fs";
+import path from "path";
 
 interface RequestMP extends Request {
 	formData: Array<{
@@ -17,11 +19,11 @@ interface RequestMP extends Request {
 
 router.post("/", parseMP, (req, res) => {
 	let reqModified = req as RequestMP;
-	const torrentFile = reqModified.formData.filter(
-		(ele) => ele.type === "application/x-bittorrent"
-	);
-	// console.log(Bencode.decode(torrentFile[0].data));
-	const torrent = new TorrentStruct(Bencode.decode(torrentFile[0].data));
+	const torrentFiles = reqModified.formData.filter((ele) => ele.type === "application/x-bittorrent");
+	console.log("Parsing the First torrentFile");
+	const torrentInfo = Bencode.decode(torrentFiles[0].data);
+	console.log("Done ✓✓✓");
+	const torrent = new TorrentStruct(torrentInfo);
 	const peers = getPeerList(torrent);
 	res.send("");
 });
