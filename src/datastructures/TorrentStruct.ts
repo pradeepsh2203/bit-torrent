@@ -38,6 +38,7 @@ class TorrentStruct {
 				this.AnnounceList.push(...ele);
 			});
 		}
+		this.AnnounceList.push(this.Announce);
 		const hash = crypto.createHash("sha1");
 		this.InfoHash = hash.update(Bencode.encode(val.info)).digest();
 		this.PieceLength = val.info["piece length"];

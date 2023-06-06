@@ -55,8 +55,8 @@ export class AnnouncePacket {
 		announceMessage.writeBigInt64BE(this.uploaded, 72);
 		announceMessage.writeInt32BE(eventMap[this.event], 80);
 		announceMessage.writeInt32BE(0, 84); //IP ->optional
-		announceMessage.writeInt32BE(0, 88); // key being my 0 also optional
-		announceMessage.writeInt32BE(-1, 92); // default value for num_want also optional
+		announceMessage.writeInt32BE(50, 88); // key being my 0 also optional
+		announceMessage.writeInt32BE(50, 92); // default value for num_want also optional
 		announceMessage.writeInt16BE(this.port, 96);
 
 		return announceMessage;

@@ -4,7 +4,7 @@ import TorrentStruct from "../datastructures/TorrentStruct";
 import { socket } from "../udp";
 
 export const getPeerList = async (torrent: TorrentStruct) => {
-	let { protocol, host, serverPort, route } = getUrlInfo(torrent.AnnounceList[2]);
+	let { protocol, host, serverPort, route } = getUrlInfo(torrent.AnnounceList[0]);
 	// Have save to save the tracker port and host values for later use
 	const localStorage = new LocalStorage();
 	localStorage.data.trackerHost = host;

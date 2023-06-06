@@ -27,22 +27,22 @@ export const ValidConnectRes = (msg: Buffer, size: number) => {
 };
 
 export const ValidAnnounceRes = (msg: Buffer, size: number) => {
-	// if (size < 20) {
-	// 	return false;
-	// }
-	// const action = msg.readInt32BE(0);
-	// const transaction_id = msg.readInt32BE(4);
-	// const interval = msg.readInt32BE(8);
-	// const leecher = msg.readInt32BE(12);
-	// const seeder = msg.readInt32BE(16);
-	// const reqTransactionId = getTransactionID();
-	// if (action === 1 && transaction_id === reqTransactionId) {
-	// 	console.log(interval, leecher, seeder);
-	// 	return true;
-	// } else {
-	// 	return false;
-	// }
-	return false;
+	if (size < 20) {
+		return false;
+	}
+	const action = msg.readInt32BE(0);
+	const transaction_id = msg.readInt32BE(4);
+	const interval = msg.readInt32BE(8);
+	const leecher = msg.readInt32BE(12);
+	const seeder = msg.readInt32BE(16);
+	const localStorage = new LocalStorage();
+	if (action === 1 && transaction_id === localStorage.data.transactionID) {
+		console.log("A valid announce request came of size ", size);
+		console.log(interval, leecher, seeder);
+		return true;
+	} else {
+		return false;
+	}
 };
 
 export const makeAnnounceReq = () => {

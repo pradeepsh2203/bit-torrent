@@ -26,6 +26,9 @@ socket.on("message", (msg, rinfo) => {
 	} else if (ValidAnnounceRes(msg, rinfo.size)) {
 		const n = (msg.length - 20) / 6;
 		console.log("The number of peers are", n);
+		const peerIP = msg.readInt32BE(20);
+		const peerPort = msg.readInt16BE(24);
+		console.log(`The peerId and port numbers are ${peerIP} ${peerPort}`);
 	} else {
 		console.log("A message come ", msg);
 	}
