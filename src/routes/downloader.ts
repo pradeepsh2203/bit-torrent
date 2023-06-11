@@ -1,5 +1,5 @@
 import express, { Request } from "express";
-import Bencode from "bencoder";
+import { decode } from "bencodec";
 import TorrentStruct from "../datastructures/TorrentStruct";
 import { generatePeerId, getPeerList } from "../helper/Peers";
 const router = express.Router();
@@ -21,9 +21,12 @@ router.post("/", parseMP, (req, res) => {
 	let reqModified = req as RequestMP;
 	const torrentFiles = reqModified.formData.filter((ele) => ele.type === "application/x-bittorrent");
 	console.log("Parsing the First torrentFile");
-	const torrentInfo = Bencode.decode(torrentFiles[0].data);
+	const torrentInfo: any = decode(torrentFiles[0].data);
+	console.log(torrentInfo);
+	// 5a9ee290c86148fcd00dead9dd225848d9fd0d7a
+
 	console.log("Done ✓✓✓");
-	const torrent = new TorrentStruct(torrentInfo);
+	const torrent = new TorrentStruct(torrentInfo, torrentFiles[0].data);
 	const peers = getPeerList(torrent);
 	res.send("");
 });

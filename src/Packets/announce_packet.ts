@@ -24,9 +24,11 @@ export class AnnouncePacket {
 			this.connectionId = BigInt(connectionID);
 			this.left = BigInt(torrentInfo.Length);
 		}
-		// Need to convert the json buffer like object back to buffer
-		this.infoHash = Buffer.from(JSON.stringify(localStorage.data.torrentInfo?.InfoHash));
-		localStorage.data.peerId = this.peerId = generatePeerId();
+		// After saving the buffer value it get's converted to json object we need to convert it back to json..
+		if (localStorage.data.torrentInfo) this.infoHash = Buffer.from(localStorage.data.torrentInfo?.InfoHash.data);
+
+		this.peerId = generatePeerId();
+		localStorage.data.peerId = this.peerId.toJSON();
 		this.downloaded = BigInt(0);
 		this.uploaded = BigInt(0);
 		this.port = process.env.UDP_PORT !== undefined ? parseInt(process.env.UDP_PORT) : 6881;
@@ -43,6 +45,7 @@ export class AnnouncePacket {
 	public getAnnounceMessage() {
 		const action = 1; // Announce code...
 		const eventMap = { none: 0, Completed: 1, Started: 2, Stopped: 3 }; // 0: none; 1: completed; 2: started; 3: stopped
+		console.log("InfoHash after retreiving,", this.infoHash);
 
 		const announceMessage = Buffer.alloc(98);
 		announceMessage.writeBigInt64BE(this.connectionId, 0);
@@ -58,6 +61,9 @@ export class AnnouncePacket {
 		announceMessage.writeInt32BE(50, 88); // key being my 0 also optional
 		announceMessage.writeInt32BE(50, 92); // default value for num_want also optional
 		announceMessage.writeInt16BE(this.port, 96);
+		console.log("Announce Message", announceMessage);
+		console.log("Info Hash", this.infoHash?.toString());
+		console.log("Peer ID", this.peerId);
 
 		return announceMessage;
 	}

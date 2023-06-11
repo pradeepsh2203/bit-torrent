@@ -4,15 +4,27 @@ import { readFileSync, writeFileSync } from "node:fs";
 
 // db.json file path
 const file = join(__dirname, "db.json");
+interface BufferJSON {
+	type: "Buffer";
+	data: number[];
+}
+interface torrentInfo {
+	Announce: string;
+	AnnounceList: Array<string>;
+	InfoHash: BufferJSON;
+	PieceHashes: Array<Array<any>>;
+	PieceLength: number;
+	Length: number;
+	Name: string;
+}
 type Data = {
 	transactionID?: number;
 	connectionID?: string;
-	torrentInfo?: TorrentStruct;
+	torrentInfo?: torrentInfo;
 	trackerPort?: number;
 	trackerHost?: string;
-	peer_id?: Buffer;
 	trackerRoute?: string;
-	peerId?: Buffer;
+	peerId?: BufferJSON;
 	downloaded?: string;
 	left?: string;
 	uploaded?: string;
