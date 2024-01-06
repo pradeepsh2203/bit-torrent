@@ -6,3 +6,8 @@ I would be trying to built a bit-torrent client from scratch without any tutoria
 
 &#9745; Simple Landing Webpage to upload the torrent file.  
 &#9744; Bencoder Parser.
+&#9745; InfoHash Working
+next task is to remove the clutter and store the peers(port and ip somewhere)
+
+the url for bit torrent client is https://www.bittorrent.org/beps/bep_0015.html
+

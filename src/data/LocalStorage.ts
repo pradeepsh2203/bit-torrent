@@ -17,6 +17,10 @@ interface torrentInfo {
 	Length: number;
 	Name: string;
 }
+interface PeerDetails {
+	ipAddress: number;
+	portNo: number;
+}
 type Data = {
 	transactionID?: number;
 	connectionID?: string;
@@ -32,6 +36,10 @@ type Data = {
 	ip?: number;
 	numWant?: number;
 	port?: number; // this is the udp port do we need it here?? if yes then update the announce packet to update the port no.
+	interval?: number;
+	leechers?: number;
+	seeders?: number;
+	peers: PeerDetails[];
 };
 
 export class LocalStorage {

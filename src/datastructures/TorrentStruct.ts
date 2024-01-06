@@ -42,7 +42,6 @@ class TorrentStruct {
 
 		// Calculating infoHash from it's substring in the torrent file.
 		this.InfoHash = findInfoHash(buffer);
-		console.log("infoHash", this.InfoHash);
 
 		this.PieceLength = val.info["piece length"];
 		this.Name = val.info.name.toString();

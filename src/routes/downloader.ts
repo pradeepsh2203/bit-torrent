@@ -22,10 +22,7 @@ router.post("/", parseMP, (req, res) => {
 	const torrentFiles = reqModified.formData.filter((ele) => ele.type === "application/x-bittorrent");
 	console.log("Parsing the First torrentFile");
 	const torrentInfo: any = decode(torrentFiles[0].data);
-	console.log(torrentInfo);
-	// 5a9ee290c86148fcd00dead9dd225848d9fd0d7a
 
-	console.log("Done ✓✓✓");
 	const torrent = new TorrentStruct(torrentInfo, torrentFiles[0].data);
 	const peers = getPeerList(torrent);
 	res.send("");

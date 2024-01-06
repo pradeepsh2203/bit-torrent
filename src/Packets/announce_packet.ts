@@ -34,7 +34,6 @@ export class AnnouncePacket {
 		this.port = process.env.UDP_PORT !== undefined ? parseInt(process.env.UDP_PORT) : 6881;
 		this.numWant = -1;
 		localStorage.data.event = this.event = "Started";
-		console.log(this.port);
 
 		// going to save details my local storage
 		localStorage.data.downloaded = "0";
@@ -45,7 +44,6 @@ export class AnnouncePacket {
 	public getAnnounceMessage() {
 		const action = 1; // Announce code...
 		const eventMap = { none: 0, Completed: 1, Started: 2, Stopped: 3 }; // 0: none; 1: completed; 2: started; 3: stopped
-		console.log("InfoHash after retreiving,", this.infoHash);
 
 		const announceMessage = Buffer.alloc(98);
 		announceMessage.writeBigInt64BE(this.connectionId, 0);
@@ -61,9 +59,6 @@ export class AnnouncePacket {
 		announceMessage.writeInt32BE(50, 88); // key being my 0 also optional
 		announceMessage.writeInt32BE(50, 92); // default value for num_want also optional
 		announceMessage.writeInt16BE(this.port, 96);
-		console.log("Announce Message", announceMessage);
-		console.log("Info Hash", this.infoHash?.toString());
-		console.log("Peer ID", this.peerId);
 
 		return announceMessage;
 	}

@@ -38,7 +38,6 @@ export const ValidAnnounceRes = (msg: Buffer, size: number) => {
 	const localStorage = new LocalStorage();
 	if (action === 1 && transaction_id === localStorage.data.transactionID) {
 		console.log("A valid announce request came of size ", size);
-		console.log(interval, leecher, seeder);
 		return true;
 	} else {
 		return false;
