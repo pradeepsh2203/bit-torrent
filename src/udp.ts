@@ -1,6 +1,7 @@
 import dgram from "dgram";
 import { makeAnnounceReq, ValidAnnounceRes, ValidConnectRes } from "./helper/udpReq";
 import { LocalStorage } from "./data/LocalStorage";
+import { initiateHandShake } from "./helper/handshake"
 require("dotenv").config;
 
 // If you ever make change in this line also make the same change in Announce Packet file
@@ -33,12 +34,20 @@ socket.on("message", (msg, rinfo) => {
 		console.log("The number of peers are", n);
 		localStorage.data.peers = [];
 		for (let i = 0; i < n; i++) {
+			const ipAddress = msg.readUInt32BE(20 + 6 * i);
+			const mask = BigInt(255) << BigInt(24);
+			const ipString = ((BigInt(ipAddress) & (BigInt(255) << BigInt(24))) >> BigInt(24)) + "." +
+				((BigInt(ipAddress) & (BigInt(255) << BigInt(16))) >> BigInt(16)) + "." +
+				((BigInt(ipAddress) & (BigInt(255) << BigInt(8))) >> BigInt(8)) + "." +
+				(BigInt(ipAddress) & BigInt(255));
+
 			localStorage.data.peers.push({
-				ipAddress: msg.readUInt32BE(20 + 6 * i),
+				ipAddress: ipString,
 				portNo: msg.readUInt16BE(24 + 6 * i)
 			})
 		}
 		localStorage.writeToFile();
+		initiateHandShake();
 	} else {
 		console.log("A message come ", msg);
 	}

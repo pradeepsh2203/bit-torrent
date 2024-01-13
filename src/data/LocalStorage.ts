@@ -18,7 +18,7 @@ interface torrentInfo {
 	Name: string;
 }
 interface PeerDetails {
-	ipAddress: number;
+	ipAddress: string;
 	portNo: number;
 }
 type Data = {
