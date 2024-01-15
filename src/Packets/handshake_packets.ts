@@ -23,36 +23,36 @@ export const buildHandshakePacket = () => {
     return buffer;
 }
 
-export const keepAlive = () => {  //id=0
+export const buildKeepAlive = () => {  //id=0
     const buffer = Buffer.alloc(4);
     buffer.writeInt32BE(0, 0);
     return buffer;
 }
 
-export const choke = () => {
+export const buildChoke = () => {
     const buffer = Buffer.alloc(5);
-    buffer.writeInt32BE(1, 0);//lengtth
+    buffer.writeInt32BE(1, 0);//length
     buffer.writeInt8(0, 4)
     return buffer;
 }
 
-export const unchoke = () => {
+export const buildUnChoke = () => {
     const buffer = Buffer.alloc(5);
-    buffer.writeInt32BE(1, 0);//lengtth
+    buffer.writeInt32BE(1, 0);//length
     buffer.writeInt8(1, 4)
     return buffer;
 }
 
 export const buildInterested = () => {
     const buffer = Buffer.alloc(5);
-    buffer.writeInt32BE(1, 0);//lengtth
+    buffer.writeInt32BE(1, 0);//length
     buffer.writeInt8(2, 4)
     return buffer;
 }
 
-export const notInterested = () => {
+export const buildNotInterested = () => {
     const buffer = Buffer.alloc(5);
-    buffer.writeInt32BE(1, 0);//lengtth
+    buffer.writeInt32BE(1, 0);//length
     buffer.writeInt8(3, 4)
     return buffer;
 }
