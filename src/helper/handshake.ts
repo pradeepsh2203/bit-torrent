@@ -57,8 +57,9 @@ const respHandler = (msg: Buffer, socket: net.Socket, queue: Queue, havePiece: n
             case 1:
                 unchokeHandler();
             case 4:
-                if (res.payload)
+                if (res.payload) {
                     haveHandler(res.payload, havePiece);
+                }
             case 5:
                 if (res.payload)
                     bitFieldHandler(res.payload, havePiece);
