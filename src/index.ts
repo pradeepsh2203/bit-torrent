@@ -2,7 +2,8 @@ import { Request, Response, Express } from "express";
 import express from "express";
 require("dotenv").config();
 
-const DownloadRouter = require("./routes/downloader");
+import DownloadRouter from "./routes/downloader"
+// const DownloadRouter = require("./routes/downloader");
 
 // Configuring our Express App
 const app: Express = express();

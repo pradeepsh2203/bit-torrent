@@ -1,8 +1,7 @@
-import { Socket } from "dgram";
 import { buildHandshakePacket, buildInterested } from "../Packets/handshake_packets";
-import { bitFieldHandler, cancelHandler, chokeHandler, defaultHandler, haveHandler, pieceHandler, portHandler, requestHandler, unchokeHandler } from "./messageHandler";
+import { bitFieldHandler, cancelHandler, chokeHandler, connectionProperties, defaultHandler, haveHandler, pieceHandler, portHandler, requestHandler, unchokeHandler } from "./messageHandler";
 import { LocalStorage } from "../data/LocalStorage"
-import net from "net";
+import net  from "net";
 import { Queue } from "../datastructures/Queue";
 
 export const initiateHandShake = () => {
@@ -15,7 +14,10 @@ export const initiateHandShake = () => {
 
 const connectToPeer = (peer: { ipAddress: string, portNo: number }, handShakePacket: Buffer, queue: Queue) => {
     const socket = new net.Socket();
-    const havePiece: number[] = []// this store the piece index of pieces that the peer have
+    const concProps:connectionProperties= {
+        chocked:true,
+        havePieces:[]
+    }// this store the piece index of pieces that the peer have
     socket.on('error', (err) => {
         console.log(err);
     })
@@ -24,10 +26,10 @@ const connectToPeer = (peer: { ipAddress: string, portNo: number }, handShakePac
         socket.write(handShakePacket);
     })
 
-    aggregrateInputBuffer(socket, respHandler, queue, havePiece);
+    aggregrateInputBuffer(socket, respHandler, queue, concProps);
 }
 
-const aggregrateInputBuffer = (socket: net.Socket, callback: (buffer: Buffer, socket: net.Socket, queue: Queue, havePiece: number[]) => void, queue: Queue, havePiece: number[]) => {
+const aggregrateInputBuffer = (socket: net.Socket, callback: (buffer: Buffer, socket: net.Socket, queue: Queue, conncProps:connectionProperties) => void, queue: Queue, connectionProperties:connectionProperties) => {
     let savedBuffer = Buffer.alloc(0);
     let handshake = true;
 
@@ -36,7 +38,7 @@ const aggregrateInputBuffer = (socket: net.Socket, callback: (buffer: Buffer, so
         let msgLen = handshake ? savedBuffer.readUInt8(0) + 49 : savedBuffer.readInt32BE(0) + 4;
 
         if (savedBuffer.length >= msgLen) {
-            callback(savedBuffer.subarray(0, msgLen), socket, queue, havePiece);
+            callback(savedBuffer.subarray(0, msgLen), socket, queue, connectionProperties);
             savedBuffer = savedBuffer.subarray(msgLen);
             handshake = false;
         }
@@ -44,8 +46,8 @@ const aggregrateInputBuffer = (socket: net.Socket, callback: (buffer: Buffer, so
     })
 }
 
-const respHandler = (msg: Buffer, socket: net.Socket, queue: Queue, havePiece: number[]) => {
-    console.log(msg.toString('utf-8'))
+const respHandler = (msg: Buffer, socket: net.Socket, queue: Queue, connectionProperties:connectionProperties) => {
+    // console.log(msg.toString('utf-8'))
     if (isHandshake(msg)) {
         socket.write(buildInterested());
     } else {
@@ -53,16 +55,16 @@ const respHandler = (msg: Buffer, socket: net.Socket, queue: Queue, havePiece: n
 
         switch (res.id) {
             case 0:
-                chokeHandler();
+                chokeHandler(socket);
             case 1:
-                unchokeHandler();
+                unchokeHandler(socket,queue,connectionProperties);
             case 4:
                 if (res.payload) {
-                    haveHandler(res.payload, havePiece);
+                    haveHandler(res.payload, socket, connectionProperties, queue);
                 }
             case 5:
                 if (res.payload)
-                    bitFieldHandler(res.payload, havePiece);
+                    bitFieldHandler(res.payload, connectionProperties);
             case 6:
                 requestHandler();
             case 7:

@@ -32,4 +32,5 @@ router.get("/", (req, res) => {
 	res.send("Router Works!!");
 });
 
+export default router;
 module.exports = router;
