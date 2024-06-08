@@ -1,6 +1,5 @@
 import crypto from "crypto";
 import { LocalStorage } from "../data/LocalStorage";
-import { writeFileSync } from "fs";
 import bencodec, { encode } from "bencodec";
 
 interface torrentFile {

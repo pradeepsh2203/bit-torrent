@@ -8,7 +8,7 @@ interface BufferJSON {
 	type: "Buffer";
 	data: number[];
 }
-interface torrentInfo {
+export interface torrentInfo {
 	Announce: string;
 	AnnounceList: Array<string>;
 	InfoHash: BufferJSON;
