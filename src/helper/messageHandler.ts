@@ -1,12 +1,14 @@
 import net from "net";
 import { Queue } from "../datastructures/Queue";
 import { LocalStorage, torrentInfo } from "../data/LocalStorage";
+import { socket } from "../udp";
 
 const BLOCK_LEN = Math.pow(2, 14);
 
 export interface connectionProperties {
 	chocked: boolean;
 	havePieces: number[];
+	PiecesRequest: boolean;
 }
 
 export const chokeHandler = (socket: net.Socket) => {
@@ -22,7 +24,7 @@ export const unchokeHandler = (
 	// unchoke: <len=0001><id=1>
 	connectionProperties.chocked = false;
 	console.log("Recieved an unchocke request");
-	// requestPiece(socket, connectionProperties, queue);
+	requestPiece(socket, connectionProperties, queue);
 };
 
 export const haveHandler = (
@@ -35,7 +37,7 @@ export const haveHandler = (
 	const pieceIndex = payload.readUInt32BE(0);
 	connectionProperties.havePieces.push(pieceIndex);
 
-	if (connectionProperties.havePieces.length === 1) {
+	if (!connectionProperties.PiecesRequest) {
 		// Doing this so it's called only once for a peer
 		requestPiece(socket, connectionProperties, queue);
 	}
@@ -48,7 +50,9 @@ export const haveHandler = (
 
 export const bitFieldHandler = (
 	payload: Buffer,
-	connectionProperties: connectionProperties
+	socket: net.Socket,
+	connectionProperties: connectionProperties,
+	queue: Queue
 ) => {
 	// bitfield: <len=0001+X><id=5><bitfield>
 	console.log("Recieve an bitfield Request", payload, payload.length);
@@ -64,7 +68,8 @@ export const bitFieldHandler = (
 		}
 	}
 
-	console.log("BitField Have arr", connectionProperties.havePieces);
+	if (!connectionProperties.PiecesRequest)
+		requestPiece(socket, connectionProperties, queue);
 };
 
 export const requestHandler = () => {
@@ -156,4 +161,6 @@ const requestPiece = (
 			queue.setRequested(pieceIndex);
 		}
 	}
+
+	connectionProperties.PiecesRequest = false;
 };

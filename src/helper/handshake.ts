@@ -35,6 +35,7 @@ const connectToPeer = (
 	const concProps: connectionProperties = {
 		chocked: true,
 		havePieces: [],
+		PiecesRequest: false,
 	}; // this store the piece index of pieces that the peer have
 	socket.on("error", (err) => {
 		console.log(err);
@@ -108,7 +109,12 @@ const respHandler = (
 				}
 			case 5:
 				if (res.payload)
-					bitFieldHandler(res.payload, connectionProperties);
+					bitFieldHandler(
+						res.payload,
+						socket,
+						connectionProperties,
+						queue
+					);
 			case 6:
 				requestHandler();
 			case 7:
