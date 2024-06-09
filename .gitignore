@@ -1,4 +1,7 @@
 resources.txt
+src\data\db.json
+db.json
+src/data/db.json
 node_modules/
 *.env
 *.rest
