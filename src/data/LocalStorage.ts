@@ -21,6 +21,12 @@ interface PeerDetails {
 	ipAddress: string;
 	portNo: number;
 }
+interface PieceDetails {
+	pieceIndex: number;
+	blocks: Buffer[];
+	requestedFrom: PeerDetails;
+	recieveAll: number;
+}
 type Data = {
 	transactionID?: number;
 	connectionID?: string;
@@ -40,6 +46,7 @@ type Data = {
 	leechers?: number;
 	seeders?: number;
 	peers: PeerDetails[];
+	pieces: PieceDetails[];
 };
 
 export class LocalStorage {
