@@ -4,6 +4,7 @@ import {
 } from "../Packets/handshake_packets";
 import {
 	bitFieldHandler,
+	blocksPerPiece,
 	cancelHandler,
 	chokeHandler,
 	connectionProperties,
@@ -23,19 +24,24 @@ export const initiateHandShake = () => {
 	const peers = localStorage.data.peers;
 	const handShakePacket = buildHandshakePacket();
 	const queue = new Queue(localStorage.data.torrentInfo?.PieceHashes.length); // storing all the items that have been requested and recieved
-	peers.forEach((peer) => connectToPeer(peer, handShakePacket, queue));
+	setupPiecesInfo(localStorage);
+	peers.forEach((peer) =>
+		connectToPeer(peer, handShakePacket, queue, localStorage)
+	);
 };
 
 const connectToPeer = (
 	peer: { ipAddress: string; portNo: number },
 	handShakePacket: Buffer,
-	queue: Queue
+	queue: Queue,
+	localStorage: LocalStorage
 ) => {
 	const socket = new net.Socket();
 	const concProps: connectionProperties = {
 		chocked: true,
 		havePieces: [],
 		PiecesRequest: false,
+		RequestMade: false,
 	}; // this store the piece index of pieces that the peer have
 	socket.on("error", (err) => {
 		console.log(err);
@@ -45,7 +51,7 @@ const connectToPeer = (
 		socket.write(handShakePacket);
 	});
 
-	aggregrateInputBuffer(socket, respHandler, queue, concProps);
+	aggregrateInputBuffer(socket, respHandler, queue, concProps, localStorage);
 };
 
 const aggregrateInputBuffer = (
@@ -54,10 +60,12 @@ const aggregrateInputBuffer = (
 		buffer: Buffer,
 		socket: net.Socket,
 		queue: Queue,
-		conncProps: connectionProperties
+		conncProps: connectionProperties,
+		localStorage: LocalStorage
 	) => void,
 	queue: Queue,
-	connectionProperties: connectionProperties
+	connectionProperties: connectionProperties,
+	localStorage: LocalStorage
 ) => {
 	let savedBuffer = Buffer.alloc(0);
 	let handshake = true;
@@ -73,7 +81,8 @@ const aggregrateInputBuffer = (
 				savedBuffer.subarray(0, msgLen),
 				socket,
 				queue,
-				connectionProperties
+				connectionProperties,
+				localStorage
 			);
 			savedBuffer = savedBuffer.subarray(msgLen);
 			handshake = false;
@@ -85,7 +94,8 @@ const respHandler = (
 	msg: Buffer,
 	socket: net.Socket,
 	queue: Queue,
-	connectionProperties: connectionProperties
+	connectionProperties: connectionProperties,
+	localStorage: LocalStorage
 ) => {
 	// console.log(msg.toString('utf-8'))
 	if (isHandshake(msg)) {
@@ -96,33 +106,61 @@ const respHandler = (
 		switch (res.id) {
 			case 0:
 				chokeHandler(socket);
+				break;
 			case 1:
-				unchokeHandler(socket, queue, connectionProperties);
+				unchokeHandler(
+					socket,
+					queue,
+					connectionProperties,
+					localStorage
+				);
+				break;
 			case 4:
 				if (res.payload) {
 					haveHandler(
 						res.payload,
 						socket,
 						connectionProperties,
-						queue
+						queue,
+						localStorage
 					);
 				}
+				break;
 			case 5:
 				if (res.payload)
 					bitFieldHandler(
 						res.payload,
 						socket,
 						connectionProperties,
-						queue
+						queue,
+						localStorage
 					);
+				break;
 			case 6:
 				requestHandler();
+				break;
 			case 7:
-				pieceHandler();
+				console.log(
+					"Handshake ",
+					res.parsedMessage.index,
+					res.parsedMessage.begin,
+					res
+				);
+				pieceHandler(
+					res.parsedMessage.index!,
+					res.parsedMessage.begin!,
+					res.parsedMessage.block!,
+					localStorage,
+					queue,
+					connectionProperties
+				);
+				break;
 			case 8:
 				cancelHandler();
+				break;
 			case 9:
 				portHandler();
+				break;
 			default:
 				defaultHandler();
 		}
@@ -162,4 +200,20 @@ const parseMessage = (msg: Buffer) => {
 		payload: payload,
 		parsedMessage: parsedMessage,
 	};
+};
+
+export const setupPiecesInfo = (localStorage: LocalStorage) => {
+	const torrentInfo = localStorage.data.torrentInfo!;
+	localStorage.data.pieces = [];
+	const numOfPieces = Math.ceil(torrentInfo.Length / torrentInfo.PieceLength);
+
+	for (let i = 0; i < numOfPieces; i++) {
+		const numOfBlocks = blocksPerPiece(torrentInfo, i);
+		const blocksArr: Buffer[] = new Array(numOfBlocks);
+		localStorage.data.pieces.push({
+			blocks: blocksArr,
+			pieceIndex: i,
+			recieved: 0,
+		});
+	}
 };

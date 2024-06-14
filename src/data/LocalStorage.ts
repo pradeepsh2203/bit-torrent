@@ -24,8 +24,8 @@ interface PeerDetails {
 interface PieceDetails {
 	pieceIndex: number;
 	blocks: Buffer[];
-	requestedFrom: PeerDetails;
-	recieveAll: number;
+	requestedFrom?: PeerDetails;
+	recieved: number; //Stores the details of what you have recieved.
 }
 type Data = {
 	transactionID?: number;
