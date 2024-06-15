@@ -1,16 +1,20 @@
 # Bit-Torrent Client (Peer to Peer protocol)
 
-I would be trying to built a bit-torrent client from scratch without any tutorial. Using NodeJs, TypeScript.
+This is a BitTorrentClient using NodeJS, Typescript and this has a basic download endpoint which when provided a torrent file start downloading the data from the peers following the Standard Bit Torrent Protocol. It's a vary basic project and thus have a lot of limitation. Currently I am not thinking of improving it but If I get some time I might come back to it. The Current limitations that I know of are:
 
-## To-Do
+-   It only supports upd protocol for the tracker.
+-   It sends all the block request in one go which I think is the cause my app breaks sometime in the middle
+-   It very poorly arcitechtured.
 
-&#9745; Simple Landing Webpage to upload the torrent file.  
-&#9744; Bencoder Parser. &#9745; InfoHash Working next task is to remove the clutter and store the peers(port and ip somewhere)
+## Project Demo
 
-the url for bit torrent client is https://www.bittorrent.org/beps/bep_0015.html
+<a href="https://www.youtube.com/embed/_2_l_oklbDk?si=1vZK5gJY7CA_JH9O" target="_blank"><img src="http://img.youtube.com/vi/_2_l_oklbDk/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" /></a>
 
-I have all sorted till the process of recieving have messages but now how to ensure that we have recieved all the have messages and we can start downloading our pieces.
+## The Project Refrences
 
-**_Alas at last I should give up my hopes here. Looks to me that this was not that good of an idea building torrent client in node . I think I should have known this earlier that the single threaded nature of node would not allow me to make multiple connections with peers at the same time. and to make connection with one peer at a time is not that efficient._**
+The links below are the project and documents that I have refered to while building the project (apart from stackoverflow 😜)
 
-**Remarks:- Actually we can devise some algorithm here that can basically make connections with peer one by one and get the data from the peers. keep the data of the in some local storage :)(which I already have available)**
+-   https://www.bittorrent.org/beps/bep_0015.html
+-   https://wiki.theory.org/BitTorrentSpecification
+-   https://allenkim67.github.io/programming/2016/05/04/how-to-make-your-own-bittorrent-client.html (really helpful time to time)
