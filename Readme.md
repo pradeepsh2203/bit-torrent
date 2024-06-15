@@ -9,7 +9,7 @@ This is a BitTorrentClient using NodeJS, Typescript and this has a basic downloa
 ## Project Demo
 
 <a href="https://www.youtube.com/embed/_2_l_oklbDk?si=1vZK5gJY7CA_JH9O" target="_blank"><img src="http://img.youtube.com/vi/_2_l_oklbDk/0.jpg" 
-alt="IMAGE ALT TEXT HERE" width="240" height="180" /></a>
+alt="Project Demo Video Link" width="max-content" /></a>
 
 ## The Project Refrences
 
