@@ -42,6 +42,7 @@ const connectToPeer = (
 		havePieces: [],
 		PiecesRequest: false,
 		RequestMade: false,
+		PeerDetails: peer,
 	}; // this store the piece index of pieces that the peer have
 	socket.on("error", (err) => {
 		console.log(err);
@@ -105,7 +106,7 @@ const respHandler = (
 
 		switch (res.id) {
 			case 0:
-				chokeHandler(socket);
+				chokeHandler(socket, connectionProperties);
 				break;
 			case 1:
 				unchokeHandler(
@@ -140,12 +141,6 @@ const respHandler = (
 				requestHandler();
 				break;
 			case 7:
-				console.log(
-					"Handshake ",
-					res.parsedMessage.index,
-					res.parsedMessage.begin,
-					res
-				);
 				pieceHandler(
 					res.parsedMessage.index!,
 					res.parsedMessage.begin!,

@@ -11,11 +11,22 @@ export interface connectionProperties {
 	havePieces: number[];
 	PiecesRequest: boolean;
 	RequestMade: boolean;
+	PeerDetails: {
+		ipAddress: string;
+		portNo: number;
+	};
 }
 
-export const chokeHandler = (socket: net.Socket) => {
+export const chokeHandler = (
+	socket: net.Socket,
+	connectionProperties: connectionProperties
+) => {
 	// choke: <len=0001><id=0>
-	socket.end();
+	console.log(
+		`Chocked by the Peer: ${connectionProperties.PeerDetails.ipAddress}`
+	);
+	// socket.end();
+	connectionProperties.chocked = true;
 };
 
 export const unchokeHandler = (
@@ -26,7 +37,9 @@ export const unchokeHandler = (
 ) => {
 	// unchoke: <len=0001><id=1>
 	connectionProperties.chocked = false;
-	console.log("Recieved an unchocke request");
+	console.log(
+		`Recieved an unchocke request from the peer:${connectionProperties.PeerDetails.ipAddress}`
+	);
 	requestPiece(socket, connectionProperties, queue, localStorage);
 };
 
@@ -45,6 +58,9 @@ export const haveHandler = (
 		// Doing this so it's called only once for a peer
 		requestPiece(socket, connectionProperties, queue, localStorage);
 	}
+	console.log(
+		`Recieved an have from the peer ${connectionProperties.PeerDetails.ipAddress}`
+	);
 	// console.log(
 	// 	"Recieved an Have request",
 	// 	pieceIndex,
@@ -60,7 +76,9 @@ export const bitFieldHandler = (
 	localStorage: LocalStorage
 ) => {
 	// bitfield: <len=0001+X><id=5><bitfield>
-	console.log("Recieve an bitfield Request");
+	console.log(
+		`Recieve an bitfield Request from the peer ${connectionProperties.PeerDetails.ipAddress}`
+	);
 
 	const len = payload.length;
 	for (let i = 0; i < len; i++) {
@@ -91,7 +109,7 @@ export const pieceHandler = (
 	socket: net.Socket
 ) => {
 	// piece: <len=0009+X><id=7><index><begin><block>
-	console.log("Piece Handler ", index, begin, localStorage.data.pieces);
+	// console.log("Piece Handler ", index, begin, localStorage.data.pieces);
 	localStorage.data.pieces[index].blocks[begin] = block;
 	localStorage.data.pieces[index].recieved += 1;
 
@@ -101,6 +119,7 @@ export const pieceHandler = (
 	) {
 		connectionProperties.RequestMade = false;
 		queue.addRecieved(index);
+		queue.printProgress();
 		requestPiece(socket, connectionProperties, queue, localStorage); // this would request the next piece from the peer
 	}
 };
@@ -154,7 +173,9 @@ const requestPiece = (
 	// Have to handle the request piece functionality
 
 	if (connectionProperties.chocked) return null;
-	console.log("Requesting Pieces from the peer");
+	console.log(
+		`Requesting Pieces from the peer ${connectionProperties.PeerDetails.ipAddress}`
+	);
 
 	const data = new LocalStorage();
 	const torrentinfo = data.data.torrentInfo;
@@ -162,7 +183,6 @@ const requestPiece = (
 	while (!queue.isDone() && connectionProperties.havePieces.length) {
 		if (connectionProperties.RequestMade) continue; //skip If the Requestis AlreadyMade
 
-		console.log("Migth Actually request a piece");
 		connectionProperties.RequestMade = false;
 		const pieceIndex = connectionProperties.havePieces.shift();
 		const pieceLen = pieceLength(torrentinfo!, pieceIndex!); // you can append a non null operator to say that these variable will not be null durning runtime

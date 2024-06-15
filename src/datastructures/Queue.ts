@@ -1,10 +1,12 @@
 export class Queue {
 	private requested: Boolean[];
 	private recieved: Boolean[];
+	private recievedCnt: number;
 
 	constructor(len: number | undefined) {
 		this.recieved = new Array(len).fill(false);
 		this.requested = new Array(len).fill(false);
+		this.recievedCnt = 0;
 	}
 
 	addRequested(pieceIndex: number) {
@@ -13,6 +15,7 @@ export class Queue {
 
 	addRecieved(pieceIndex: number) {
 		this.recieved[pieceIndex] = true;
+		this.recievedCnt++;
 	}
 
 	isDone() {
@@ -46,6 +49,7 @@ export class Queue {
 		}
 
 		this.recieved[pieceIndex] = true;
+		this.recievedCnt += 1;
 		return;
 	}
 
@@ -56,5 +60,10 @@ export class Queue {
 
 		this.requested[pieceIndex] = true;
 		return;
+	}
+
+	printProgress() {
+		const totPieces = this.recieved.length;
+		console.log(`Download progress: ${this.recievedCnt}/${totPieces}`);
 	}
 }
