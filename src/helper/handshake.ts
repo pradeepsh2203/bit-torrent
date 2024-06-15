@@ -152,7 +152,8 @@ const respHandler = (
 					res.parsedMessage.block!,
 					localStorage,
 					queue,
-					connectionProperties
+					connectionProperties,
+					socket
 				);
 				break;
 			case 8:

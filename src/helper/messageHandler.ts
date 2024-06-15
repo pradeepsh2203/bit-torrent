@@ -87,7 +87,8 @@ export const pieceHandler = (
 	block: Buffer,
 	localStorage: LocalStorage,
 	queue: Queue,
-	connectionProperties: connectionProperties
+	connectionProperties: connectionProperties,
+	socket: net.Socket
 ) => {
 	// piece: <len=0009+X><id=7><index><begin><block>
 	console.log("Piece Handler ", index, begin, localStorage.data.pieces);
@@ -100,6 +101,7 @@ export const pieceHandler = (
 	) {
 		connectionProperties.RequestMade = false;
 		queue.addRecieved(index);
+		requestPiece(socket, connectionProperties, queue, localStorage); // this would request the next piece from the peer
 	}
 };
 
@@ -173,6 +175,7 @@ const requestPiece = (
 			for (let i = 0; i < numOfBlocks; i++) {
 				socket.write(requestPacket(pieceIndex, i, BLOCK_LEN)); //sending a request message
 			}
+			break;
 		}
 	}
 
